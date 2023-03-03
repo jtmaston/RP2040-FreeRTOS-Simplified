@@ -1,8 +1,8 @@
-[submodule "pico-sdk"]
-	path = pico-sdk
-	url = https://github.com/jtmaston/pico-sdk-diet.git
-	shallow = true
 [submodule "FreeRTOS-Kernel"]
 	path = FreeRTOS-Kernel
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+	shallow = true
+[submodule "pico-sdk"]
+	path = pico-sdk
+	url = https://github.com/jtmaston/pico-sdk-diet.git
 	shallow = true
