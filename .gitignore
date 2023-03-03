@@ -1,2 +1,6 @@
 *.xcworkspace/xcuserdata/*.xcuserdatad
 build
+cmake-build-debug-pi-pico
+.idea
+*.idea
+.idea*

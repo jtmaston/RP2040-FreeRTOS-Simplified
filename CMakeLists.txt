@@ -1,27 +1,16 @@
 cmake_minimum_required(VERSION 3.14)
 
 # Set project data
-set(PROJECT_NAME "RP2040_FREERTOS_PROJECT")
+set(PROJECT_NAME "RP2040_FREERTOS_PROJECT_TEMPLATE")
 set(BUILD_NUMBER "0")
 
+
 # Set app name(s) and version(s)
-set(APP_1_NAME "TEMPLATE")
-set(APP_1_VERSION_NUMBER "1.4.1")
-
-set(APP_2_NAME "SCHEDULING_DEMO")
-set(APP_2_VERSION_NUMBER "1.4.1")
-
-set(APP_3_NAME "IRQS_DEMO")
-set(APP_3_VERSION_NUMBER "1.4.1")
-
-set(APP_4_NAME "TIMERS_DEMO")
-set(APP_4_VERSION_NUMBER "1.4.1")
+set(APP_1_NAME "Firmware")
+set(APP_1_VERSION_NUMBER "0")
 
 # Specify the app(s) source code
 set(APP_1_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/App-Template")
-set(APP_2_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/App-Scheduling")
-set(APP_3_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/App-IRQs")
-set(APP_4_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/App-Timers")
 
 # FROM 1.3.0 -- Move common source code to a separate directory
 set(COMMON_CODE_DIRECTORY "${CMAKE_SOURCE_DIR}/Common")
@@ -41,12 +30,12 @@ set(FREERTOS_CFG_DIRECTORY "${CMAKE_SOURCE_DIR}/Config")
 set(FREERTOS_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/FreeRTOS-Kernel")
 
 # Include the Pico SDK
-include(pico_sdk_import.cmake)
+include(Config/pico_sdk_import.cmake)
 
 # Name the project
 project(${PROJECT_NAME}
         LANGUAGES C CXX ASM
-        DESCRIPTION "FreeRTOS-based RP2040 applications"
+        DESCRIPTION "Am patru meserii - pun faianta, bat la cuie ..."
 )
 
 # Initialise the Pico SDK
@@ -72,7 +61,36 @@ target_include_directories(FreeRTOS PUBLIC
 )
 
 # Include the apps' source code
-add_subdirectory(${APP_1_SRC_DIRECTORY})
-add_subdirectory(${APP_2_SRC_DIRECTORY})
-add_subdirectory(${APP_3_SRC_DIRECTORY})
-add_subdirectory(${APP_4_SRC_DIRECTORY})
+# Should we set app-level debugging?
+# NOTE Equivalent of `#define DEBUG 1`
+if(${DO_DEBUG})
+    add_compile_definitions(DEBUG=1)
+    message(STATUS "App-side debugging enabled for ${APP_1_NAME}")
+else()
+    message(STATUS "App-side debugging disabled for ${APP_1_NAME}")
+endif()
+
+# Make project data accessible to compiler
+add_compile_definitions(APP_NAME="${APP_1_NAME}")
+add_compile_definitions(APP_VERSION="${APP_1_VERSION_NUMBER}")
+add_compile_definitions(BUILD_NUM=${BUILD_NUMBER})
+
+# Include app source code file(s)
+add_executable(${APP_1_NAME}
+        App/main.c
+        )
+
+# Link to built libraries
+target_link_libraries(${APP_1_NAME} LINK_PUBLIC
+        pico_stdlib
+        FreeRTOS)
+
+# Enable/disable STDIO via USB and UART
+pico_enable_stdio_usb(${APP_1_NAME} 1)
+pico_enable_stdio_uart(${APP_1_NAME} 1)
+
+# Enable extra build products
+pico_add_extra_outputs(${APP_1_NAME})
+set(CMAKE_INSTALL_PREFIX E:/)
+install(FILES ${CMAKE_BINARY_DIR}/Firmware.uf2 DESTINATION E:/)
+
